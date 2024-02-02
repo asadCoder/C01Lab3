@@ -108,6 +108,7 @@ app.delete("/deleteNote/:noteId", express.json(), async (req, res) => {
 // Patch a note
 app.patch("/patchNote/:noteId", express.json(), async (req, res) => {
   try {
+
     // Basic param checking
     const noteId = req.params.noteId;
     if (!ObjectId.isValid(noteId)) {
@@ -126,7 +127,6 @@ app.patch("/patchNote/:noteId", express.json(), async (req, res) => {
     // Find note with given ID
     const collection = db.collection(COLLECTIONS.notes);
     const data = await collection.updateOne({
-      username: decoded.username,
       _id: new ObjectId(noteId),
     }, {
       $set: {
@@ -134,6 +134,7 @@ app.patch("/patchNote/:noteId", express.json(), async (req, res) => {
         ...(content && {content})
       }
     });
+
 
     if (data.matchedCount === 0) {
       return res
@@ -145,3 +146,18 @@ app.patch("/patchNote/:noteId", express.json(), async (req, res) => {
     res.status(500).json({error: error.message})
   }
 })
+
+
+// Delete a note
+app.delete("/deleteAllNotes", express.json(), async (req, res) => {
+  try {
+
+    const collection = db.collection(COLLECTIONS.notes);
+    //delete even if 0 notes
+    const data = await collection.deleteMany();
+    return res.status(200).json({ response: `${data.deletedCount} deleted.` });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+})
+  

@@ -38,15 +38,62 @@ function App() {
     getNotes()
   }, [])
 
-  const deleteNote = (entry) => {
+  const deleteNote = async (entry) => {
     // Code for DELETE here
+    console.log('Delete Note:' + entry._id)
+    setDialogNote(null)
+    setDialogOpen(false)
+
+  try {
+      await fetch("http://localhost:4000/deleteNote/"+entry._id,
+          {method: "DELETE",
+          headers: {
+              "Content-Type": "application/json"
+          },
+         } )
+      .then(async (response) => {
+          if (!response.ok) {
+              setNotes(`Error trying to delete note`)
+              console.log("Served failed:", response.status)
+          } else {
+              await response.json().then((data) => {
+                  deleteNoteState(entry._id)
+              }) 
+          }
+      })
+  } catch (error) {
+      setNotes("Error trying to delete note")
+      console.log("Fetch function failed:", error)
+  } 
   }
 
-  const deleteAllNotes = () => {
+  const deleteAllNotes = async (entry) => {
     // Code for DELETE all notes here
+    console.log("Delete all notes")
+
+    try {
+      await fetch("http://localhost:4000/deleteAllNotes/",
+          {method: "DELETE",
+          headers: {
+              "Content-Type": "application/json"
+          },
+         } )
+      .then(async (response) => {
+          if (!response.ok) {
+              setNotes(`Error trying to delete notes`)
+              console.log("Served failed:", response.status)
+          } else {
+              await response.json().then((data) => {
+                  deleteAllNotesState()
+              }) 
+          }
+      })
+  } catch (error) {
+      setNotes("Error trying to delete notes")
+      console.log("Fetch function failed:", error)
+  } 
   }
 
-  
   // -- Dialog functions --
   const editNote = (entry) => {
     setDialogNote(entry)
@@ -72,16 +119,32 @@ function App() {
     setNotes((prevNotes) => [...prevNotes, {_id, title, content}])
   }
 
-  const deleteNoteState = () => {
+  const deleteNoteState = (_id) => {
     // Code for modifying state after DELETE here
+    setNotes((prevNotes) => prevNotes.filter((notes) => notes.id !== _id));  
   }
 
   const deleteAllNotesState = () => {
     // Code for modifying state after DELETE all here
+    setNotes([]);
   }
 
   const patchNoteState = (_id, title, content) => {
     // Code for modifying state after PATCH here
+    setDialogNote(null)
+    setDialogOpen(false)
+
+    const i = notes.findIndex(note => note.id === _id);
+    if (i !== -1) {
+      // Create a new array with the modified note
+      const updateNotes = [...notes];
+      updateNotes[i] = {_id, title, content};
+  
+      // Update the state with the new array
+      setNotes(updateNotes);
+    } else {
+      console.error('Note not found');
+    }
   }
 
   return (
@@ -117,11 +180,10 @@ function App() {
 
           <button onClick={postNote}>Post Note</button>
           {notes && notes.length > 0 && 
-          <button
-              onClick={deleteAllNotes}
-              >
-              Delete All Notes
-          </button>}
+            <button onClick={deleteAllNotes}>
+                Delete All Notes
+            </button>
+          }
 
         </div>
 
@@ -130,7 +192,7 @@ function App() {
           initialNote={dialogNote}
           closeDialog={closeDialog}
           postNote={postNoteState}
-          // patchNote={patchNoteState}
+          patchNote={patchNoteState}
           />
 
       </header>
