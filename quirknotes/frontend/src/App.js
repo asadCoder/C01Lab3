@@ -136,11 +136,8 @@ function App() {
 
     const i = notes.findIndex(note => note.id === _id);
     if (i !== -1) {
-      // Create a new array with the modified note
       const updateNotes = [...notes];
       updateNotes[i] = {_id, title, content};
-  
-      // Update the state with the new array
       setNotes(updateNotes);
     } else {
       console.error('Note not found');
