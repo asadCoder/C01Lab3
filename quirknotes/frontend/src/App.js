@@ -41,8 +41,6 @@ function App() {
   const deleteNote = async (entry) => {
     // Code for DELETE here
     console.log('Delete Note:' + entry._id)
-    setDialogNote(null)
-    setDialogOpen(false)
 
   try {
       await fetch("http://localhost:4000/deleteNote/"+entry._id,
@@ -55,6 +53,7 @@ function App() {
           if (!response.ok) {
               setNotes(`Error trying to delete note`)
               console.log("Served failed:", response.status)
+              alert("Server failed:" + response.statu)
           } else {
               await response.json().then((data) => {
                   deleteNoteState(entry._id)
@@ -64,6 +63,8 @@ function App() {
   } catch (error) {
       setNotes("Error trying to delete note")
       console.log("Fetch function failed:", error)
+      alert("Fetch function failed:" + error)
+
   } 
   }
 
@@ -82,6 +83,7 @@ function App() {
           if (!response.ok) {
               setNotes(`Error trying to delete notes`)
               console.log("Served failed:", response.status)
+              alert("Server failed:" + response.status)
           } else {
               await response.json().then((data) => {
                   deleteAllNotesState()
@@ -91,6 +93,7 @@ function App() {
   } catch (error) {
       setNotes("Error trying to delete notes")
       console.log("Fetch function failed:", error)
+      alert("Fetch function failed:" + error)
   } 
   }
 
@@ -120,8 +123,10 @@ function App() {
   }
 
   const deleteNoteState = (_id) => {
-    // Code for modifying state after DELETE here
-    setNotes((prevNotes) => prevNotes.filter((notes) => notes.id !== _id));  
+    // // Code for modifying state after DELETE here
+     setNotes((prevNotes) => prevNotes.filter((notes) => notes._id !== _id));  
+    // const newS = prevNotes.filter(notes => Notes.id !== _id);
+    // setNotes(newS);
   }
 
   const deleteAllNotesState = () => {
